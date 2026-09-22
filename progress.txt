@@ -1,0 +1,4 @@
+23/09/2026
+    Set up Auth0 (Okta CIC) dev tenant (US region) and registered
+    "RideShare" as a Regular Web Application.
+    Created basic folder struct and initialized login through credentials and confirmed its working
