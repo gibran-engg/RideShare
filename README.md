@@ -6,7 +6,7 @@ Why things are built the way they are: see **[decision.md](decision.md)**.
 
 | Part | Folder | What it is |
 |---|---|---|
-| **Mobile app** | `mobile/` | Expo (React Native) app for **riders and drivers**: sign in with Google/Apple, onboarding, map, booking, live trip tracking |
+| **Mobile app** | `mobile/` | Expo (React Native) app for **riders and drivers**: sign in with Google/Apple, onboarding, map, booking, live trip tracking. Also runs in a desktop browser for development and demos |
 | **API** | `backend/` | Node + Express JSON API, WebSocket live updates, OAuth sign-in, OpenStreetMap search/routing |
 | **Admin app** | `apps/admin/` | Node + EJS website: verify drivers, monitor rides, manage users, SMS and audit logs |
 | Dev sign-in | `mock-oauth/` | Local OpenID Connect provider for development (off in production) |
@@ -20,7 +20,7 @@ Why things are built the way they are: see **[decision.md](decision.md)**.
 
 ## External Systems
 
-- **Map**: OpenStreetMap. Dark monochrome tiles (CARTO Dark Matter), place search via **Nominatim**, road routes/ETA via **OSRM**, all called through the API.
+- **Map**: OpenStreetMap. Dark monochrome tiles from **MapTiler** (`MAPTILER_KEY` in `.env`; without a key the apps fall back to CARTO, which shows an "API KEY REQUIRED" watermark). The apps get the tile URL from `/api/config`. Place search via **Nominatim**, road routes/ETA via **OSRM**, all called through the API.
 - **Identity**: Google and Apple (OpenID Connect). Dev sign-in for local testing.
 - **SMS / Messaging**: console provider (messages are logged and visible in the Admin app).
 
@@ -65,7 +65,20 @@ Scan the QR code with the iPhone camera (or the Expo Go app on Android). On the 
 
 In development, SMS codes are printed in the terminal and also shown on the verify screen.
 
-> One phone can only be one user at a time. To play rider and driver together, use a second phone, or sign out and switch.
+> One phone can only be one user at a time. To play rider and driver together, use a second phone, a browser tab (below), or sign out and switch.
+
+### Run it in the browser (no phone)
+
+For development and demos on the PC, start the app for the browser instead of `npm start`:
+
+```bash
+cd mobile
+npm run web
+```
+
+Open http://localhost:5173 (exactly this address; sign-in returns there). It's the same app and code as on the phone, shown at phone width. Each tab has its own sign-in, so you can be the rider in one tab and the driver in another. The same server still shows the QR code for phones.
+
+How it fits together: the web dev server (Expo/Metro) forwards `/api` and `/web` to the API (`mobile/metro.config.js`), so the browser uses the backend's existing web sign-in (`/web/auth/:provider` → `/signed-in`) and no CORS is needed; live updates connect to `ws://localhost:3000/ws` directly. Browser-only code lives in `*.web.js` files (`MonoMap.web.js` draws the map with Leaflet, `token.web.js` keeps the sign-in per tab) or behind `Platform.OS === "web"`; none of it is in the Android/iOS builds. If the browser has no location, rider and driver both start at the default spot (Ghatkopar) so they still match.
 
 ### Troubleshooting
 
@@ -170,7 +183,7 @@ npm test
 
 There are 35 tests (`npm run check` also type-checks, lints and enforces 80% line coverage). They cover the ride state machine, migrations, payment webhook signatures, idempotent booking, card/UPI checkout, ride and trip history, activity timelines, the admin user page, the OpenAPI document, and OAuth sign-in → token → onboarding with document upload → admin approval → booking → OTP → completion, the WebSocket updates, and checks that forged sign-ins, reused login codes, strangers viewing rides and app-set fares are all rejected. Tests use a temporary database and never call the public OpenStreetMap servers.
 
-Mobile checks: `cd mobile && npx eslint src && npx expo-doctor`.
+Mobile checks: `cd mobile && npx eslint src metro.config.js && npx expo-doctor`. To check that the phone builds still bundle after a change made for the browser: `npx expo export --platform ios --platform android`.
 
 ## Project structure
 
@@ -207,7 +220,7 @@ shared/views/, shared/public/   layout, styles and script for the admin pages
 
 apps/admin/      Admin website (Express + EJS): server.ts, routes.ts, views/
 mock-oauth/      Dev-only OpenID Connect provider
-mobile/          Expo app (src/app = screens via Expo Router, src/components, src/lib)
+mobile/          Expo app (src/app = screens via Expo Router, src/components, src/lib; *.web.js = browser versions)
 scripts/         dev.ts (runs API + admin + dev sign-in), seed.ts, reset.ts, migrate.ts
 tests/           domain, services, api-v1 and e2e tests + helpers/
 architecture/    System context diagram

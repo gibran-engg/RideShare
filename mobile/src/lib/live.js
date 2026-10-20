@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { AppState } from "react-native";
-import * as SecureStore from "expo-secure-store";
 import { WS_URL } from "./api";
+import { loadToken } from "./token";
 
 /**
  * Calls onRefresh whenever the server says something on screen changed
@@ -24,7 +24,7 @@ export function useLiveUpdates(onRefresh, enabled = true) {
         let attempt = 0;
 
         async function connect() {
-            const token = await SecureStore.getItemAsync("rideshare.token");
+            const token = await loadToken();
             if (!token || closed) return;
             socket = new WebSocket(WS_URL);
             socket.onopen = () => {

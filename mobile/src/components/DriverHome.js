@@ -4,6 +4,7 @@ import { MonoMap, PlaceMarker, regionAround, Route, toLatLng } from "./MonoMap";
 import { TopBar } from "./TopBar";
 import { Button, ErrorText, Pill, Sheet } from "./ui";
 import { api } from "../lib/api";
+import { confirmAction } from "../lib/dialog";
 import { useLiveUpdates } from "../lib/live";
 import { useCurrentLocation, useWatchLocation } from "../lib/location";
 import { useSession } from "../lib/session";
@@ -11,10 +12,15 @@ import { colors, money, radius, space, type, VEHICLE_ICONS } from "../lib/theme"
 
 const FIT_PADDING = { top: 140, right: 60, bottom: 380, left: 60 };
 
-/** Open turn-by-turn directions in the phone's maps app. */
+// In a desktop browser, location is often unavailable. Rather than blocking the demo, the driver
+// then uses the same fallback spot the rider's pickup defaults to, so the two can still match.
+const USE_FALLBACK_LOCATION = Platform.OS === "web";
+
+/** Open turn-by-turn directions in the phone's maps app (a new tab in the browser). */
 function navigateTo(point) {
     const url = Platform.select({
         ios: `maps://?daddr=${point.lat},${point.lng}`,
+        web: `https://www.openstreetmap.org/directions?to=${point.lat}%2C${point.lng}`,
         default: `google.navigation:q=${point.lat},${point.lng}`
     });
     Linking.openURL(url).catch(() =>
@@ -37,6 +43,7 @@ export function DriverHome() {
 
     const here = position || initialLocation;
     const vehicle = me?.driver?.vehicle;
+    const hasLocation = locationStatus === "granted" || (USE_FALLBACK_LOCATION && locationStatus === "denied");
 
     // Report GPS to the server: once at start, then continuously while online or on a trip.
     const report = useCallback(async (point) => {
@@ -48,10 +55,10 @@ export function DriverHome() {
         }
     }, []);
     useEffect(() => {
-        if (initialLocation && locationStatus === "granted") {
+        if (initialLocation && hasLocation) {
             api("/api/driver/location", { method: "POST", body: initialLocation }).catch(() => {});
         }
-    }, [initialLocation, locationStatus]);
+    }, [initialLocation, hasLocation]);
     useWatchLocation(online || Boolean(ride), report);
 
     const load = useCallback(async () => {
@@ -105,7 +112,7 @@ export function DriverHome() {
     }
 
     function toggleOnline() {
-        if (!online && locationStatus !== "granted") {
+        if (!online && !hasLocation) {
             Alert.alert("Location needed", "Turn on location so riders nearby can find you.", [
                 { text: "Not now", style: "cancel" },
                 { text: "Open settings", onPress: () => Linking.openSettings() }
@@ -118,11 +125,13 @@ export function DriverHome() {
         });
     }
 
-    function release() {
-        Alert.alert("Release this ride?", "It goes back to other drivers.", [
-            { text: "Keep ride", style: "cancel" },
-            { text: "Release", style: "destructive", onPress: () => act("cancel", () => api(`/api/rides/${ride.id}/cancel`, { method: "POST", body: {} })) }
-        ]);
+    async function release() {
+        const confirmed = await confirmAction("Release this ride?", "It goes back to other drivers.", {
+            confirm: "Release",
+            cancel: "Keep ride",
+            destructive: true
+        });
+        if (confirmed) act("cancel", () => api(`/api/rides/${ride.id}/cancel`, { method: "POST", body: {} }));
     }
 
     return (

@@ -1,25 +1,18 @@
 import { forwardRef } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
 import MapView, { Marker, Polyline, UrlTile } from "react-native-maps";
+import { Attribution, toLatLng, useMapTiles } from "./mapCommon";
 import { colors } from "../lib/theme";
 
-// Dark monochrome OpenStreetMap tiles (CARTO "Dark Matter").
-export const TILE_URL = "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png";
-export const ATTRIBUTION = "© OpenStreetMap contributors © CARTO";
-
-export function toLatLng(point) {
-    return { latitude: point.lat, longitude: point.lng };
-}
-
-export function regionAround(point, delta = 0.02) {
-    return { ...toLatLng(point), latitudeDelta: delta, longitudeDelta: delta };
-}
+// The browser uses MonoMap.web.js instead of this file.
+export { CenterPin, regionAround, toLatLng } from "./mapCommon";
 
 /**
  * Full-screen map that only shows OSM tiles: on Android the Google base map is turned off
  * (mapType "none"); on iOS the tile layer replaces Apple's map content.
  */
 export const MonoMap = forwardRef(function MonoMap({ children, style, ...props }, ref) {
+    const tiles = useMapTiles();
     return (
         <View style={[StyleSheet.absoluteFill, style]}>
             <MapView
@@ -36,10 +29,10 @@ export const MonoMap = forwardRef(function MonoMap({ children, style, ...props }
                 pitchEnabled={false}
                 {...props}
             >
-                <UrlTile urlTemplate={TILE_URL} maximumZ={20} tileSize={512} shouldReplaceMapContent zIndex={-1} />
+                {tiles ? <UrlTile urlTemplate={tiles.url} maximumZ={20} tileSize={512} shouldReplaceMapContent zIndex={-1} /> : null}
                 {children}
             </MapView>
-            <Text style={styles.attribution} pointerEvents="none">{ATTRIBUTION}</Text>
+            <Attribution text={tiles?.attribution} />
         </View>
     );
 });
@@ -70,25 +63,7 @@ export function PlaceMarker({ point, kind = "pickup", title }) {
     );
 }
 
-/** Fixed pin in the middle of the screen for choosing a spot by moving the map. */
-export function CenterPin({ label }) {
-    return (
-        <View pointerEvents="none" style={styles.centerWrap}>
-            {label ? <Text style={styles.centerLabel}>{label}</Text> : null}
-            <View style={styles.centerHead} />
-            <View style={styles.centerStem} />
-        </View>
-    );
-}
-
 const styles = StyleSheet.create({
-    attribution: {
-        position: "absolute",
-        right: 6,
-        bottom: 2,
-        fontSize: 9,
-        color: colors.faint
-    },
     pickup: {
         width: 22,
         height: 22,
@@ -115,36 +90,5 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center"
     },
-    carIcon: { color: colors.white, fontSize: 12, fontWeight: "900" },
-    centerWrap: {
-        position: "absolute",
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        alignItems: "center",
-        justifyContent: "center",
-        // Lift the pin so its tip, not its centre, marks the spot.
-        paddingBottom: 44
-    },
-    centerLabel: {
-        backgroundColor: colors.white,
-        color: colors.black,
-        fontWeight: "700",
-        fontSize: 12,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        borderRadius: 999,
-        marginBottom: 6,
-        overflow: "hidden"
-    },
-    centerHead: {
-        width: 22,
-        height: 22,
-        borderRadius: 11,
-        backgroundColor: colors.white,
-        borderWidth: 6,
-        borderColor: colors.black
-    },
-    centerStem: { width: 3, height: 18, backgroundColor: colors.white }
+    carIcon: { color: colors.white, fontSize: 12, fontWeight: "900" }
 });

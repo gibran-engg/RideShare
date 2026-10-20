@@ -16,7 +16,7 @@ function Row({ label, value }) {
 }
 
 export default function Profile() {
-    const { me, signOut } = useSession();
+    const { me, config, signOut } = useSession();
     if (!me) return null;
     const { user, driver } = me;
 
@@ -51,7 +51,7 @@ export default function Profile() {
 
                 <Button title="Ride history" variant="secondary" onPress={() => router.push("/history")} />
                 <Button title="Sign out" variant="danger" onPress={logOut} />
-                <Text style={styles.footer}>Server: {API_URL}{"\n"}Map data © OpenStreetMap contributors © CARTO</Text>
+                <Text style={styles.footer}>Server: {API_URL}{"\n"}Map {config?.map?.attribution || "© OpenStreetMap contributors"}</Text>
             </ScrollView>
         </SafeAreaView>
     );

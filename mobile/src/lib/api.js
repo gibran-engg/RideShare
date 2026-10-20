@@ -1,12 +1,18 @@
 import Constants from "expo-constants";
+import { Platform } from "react-native";
+
+const onWeb = Platform.OS === "web";
 
 /**
  * Where the backend lives.
+ * - In the browser: the page's own origin. The web dev server forwards /api and /web to the API
+ *   (see metro.config.js), so no CORS is needed.
  * - EXPO_PUBLIC_API_URL wins (use it for an HTTPS tunnel, needed for Google sign-in on a phone).
  * - Otherwise in development we reuse the host the Expo dev server runs on (your PC's
  *   Wi-Fi IP), with the API's port 3000.
  */
 function resolveApiUrl() {
+    if (onWeb) return window.location.origin;
     if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, "");
     const hostUri = Constants.expoConfig?.hostUri || Constants.linkingUri || "";
     const host = hostUri.replace(/^[a-z]+:\/\//, "").split(":")[0].split("/")[0];
@@ -14,7 +20,8 @@ function resolveApiUrl() {
 }
 
 export const API_URL = resolveApiUrl();
-export const WS_URL = API_URL.replace(/^http/, "ws") + "/ws";
+// The dev server only forwards HTTP, so in the browser the live-updates socket goes straight to the API.
+export const WS_URL = onWeb ? `ws://${window.location.hostname}:3000/ws` : API_URL.replace(/^http/, "ws") + "/ws";
 
 export class ApiError extends Error {
     constructor(status, message) {
@@ -48,7 +55,8 @@ export async function api(path, { method = "GET", body, form } = {}) {
             body: form || (body ? JSON.stringify(body) : undefined)
         });
     } catch {
-        throw new ApiError(0, `Can't reach the RideShare server at ${API_URL}. Is it running, and is your phone on the same Wi-Fi?`);
+        const hint = onWeb ? "Is it running?" : "Is it running, and is your phone on the same Wi-Fi?";
+        throw new ApiError(0, `Can't reach the RideShare server at ${API_URL}. ${hint}`);
     }
 
     let data = null;

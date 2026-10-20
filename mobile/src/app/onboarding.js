@@ -167,11 +167,19 @@ async function pickDocument(fromCamera) {
     if (result.canceled || !result.assets?.length) return null;
     const asset = result.assets[0];
     const mimeType = asset.mimeType === "image/png" ? "image/png" : "image/jpeg";
-    return { uri: asset.uri, name: asset.fileName || `document.${mimeType === "image/png" ? "png" : "jpg"}`, type: mimeType };
+    return {
+        uri: asset.uri,
+        name: asset.fileName || `document.${mimeType === "image/png" ? "png" : "jpg"}`,
+        type: mimeType,
+        // Browser only: the picked File, which is what FormData needs there.
+        file: asset.file
+    };
 }
 
 function DocumentPicker({ label, value, onChange, alreadyUploaded }) {
-    function choose() {
+    async function choose() {
+        // In a browser there's no camera/library choice to make: open the file picker.
+        if (Platform.OS === "web") return onChange((await pickDocument(false)) || value);
         Alert.alert(label, "Add a clear photo of the whole document.", [
             { text: "Take photo", onPress: async () => onChange((await pickDocument(true)) || value) },
             { text: "Choose from library", onPress: async () => onChange((await pickDocument(false)) || value) },
@@ -206,8 +214,8 @@ function DriverStep({ me, onDone }) {
         run(async () => {
             const form = new FormData();
             Object.entries(values).forEach(([key, value]) => form.append(key, value || ""));
-            if (licenseDoc) form.append("licenseDoc", licenseDoc);
-            if (rcDoc) form.append("rcDoc", rcDoc);
+            if (licenseDoc) form.append("licenseDoc", licenseDoc.file || licenseDoc);
+            if (rcDoc) form.append("rcDoc", rcDoc.file || rcDoc);
             onDone(await api("/api/onboarding/driver", { method: "POST", form }));
         });
     }

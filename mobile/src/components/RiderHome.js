@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { CenterPin, MonoMap, PlaceMarker, regionAround, Route, toLatLng } from "./MonoMap";
 import { PlaceSearch } from "./PlaceSearch";
 import { TopBar } from "./TopBar";
 import { Button, Choice, Divider, ErrorText, Pill, Sheet } from "./ui";
 import { api } from "../lib/api";
+import { confirmAction } from "../lib/dialog";
 import { useLiveUpdates } from "../lib/live";
 import { useCurrentLocation } from "../lib/location";
 import { colors, money, radius, space, type, VEHICLE_ICONS } from "../lib/theme";
@@ -125,22 +126,19 @@ export function RiderHome() {
         }
     }
 
-    function cancelRide() {
-        Alert.alert("Cancel this ride?", "Your driver will be notified.", [
-            { text: "Keep ride", style: "cancel" },
-            {
-                text: "Cancel ride",
-                style: "destructive",
-                onPress: async () => {
-                    try {
-                        await api(`/api/rides/${ride.id}/cancel`, { method: "POST", body: {} });
-                        await loadActive();
-                    } catch (err) {
-                        setError(err.message);
-                    }
-                }
-            }
-        ]);
+    async function cancelRide() {
+        const confirmed = await confirmAction("Cancel this ride?", "Your driver will be notified.", {
+            confirm: "Cancel ride",
+            cancel: "Keep ride",
+            destructive: true
+        });
+        if (!confirmed) return;
+        try {
+            await api(`/api/rides/${ride.id}/cancel`, { method: "POST", body: {} });
+            await loadActive();
+        } catch (err) {
+            setError(err.message);
+        }
     }
 
     function resetTrip() {
@@ -236,7 +234,11 @@ export function RiderHome() {
                     {locationStatus === "denied" ? (
                         <Text style={type.small}>
                             Location is off, so we can’t set your pickup automatically.{" "}
-                            <Text style={styles.link} onPress={() => Linking.openSettings()}>Open settings</Text>
+                            {Platform.OS === "web" ? (
+                                "Allow location for this site in your browser, then reload."
+                            ) : (
+                                <Text style={styles.link} onPress={() => Linking.openSettings()}>Open settings</Text>
+                            )}
                         </Text>
                     ) : null}
                     <ErrorText>{error}</ErrorText>

@@ -17,7 +17,7 @@ You'll show four things:
 | Item | Notes |
 |---|---|
 | A Windows/Mac PC with **Node.js 22.18 or newer** (24 recommended) | Check with `node -v`. The backend is TypeScript that Node runs directly, so older versions won't start it. |
-| **One or two phones** (iPhone or Android) with **Expo Go** installed | Free on the App Store / Play Store. Two phones make the ride smoother (rider + driver); one works too, see [Single-phone demo](#single-phone-demo). |
+| **One or two phones** (iPhone or Android) with **Expo Go** installed | Free on the App Store / Play Store. Two phones make the ride smoother (rider + driver); one works too, see [Single-phone demo](#single-phone-demo). **No phone?** Run the app in the browser instead, see [3.5](#35-or-run-it-in-the-browser-no-phone-needed). |
 | PC and phone(s) on the **same Wi-Fi** | Guest networks and mobile hotspots often block devices from seeing each other. |
 | **Internet access** | Map tiles, place search and routes come from online map services. |
 | About **1 GB free** on the drive holding the project | The npm cache is set to `D:\.npm-cache`. |
@@ -133,7 +133,27 @@ The first load takes 30–60 seconds. You should see the **rideshare** welcome s
 - [ ] The welcome screen shows **Continue with Google**, **Continue with Apple** ("not set up") and **Dev sign-in**
 - [ ] Location permission is allowed for Expo Go on the phone(s)
 
-> **Known for now:** the phone map shows an **"API KEY REQUIRED"** watermark (the free CARTO tiles now need a key). The streets still work. It goes away when the phone app switches to MapTiler, together with the web app.
+> **Map tiles:** the map uses MapTiler when `MAPTILER_KEY` is set in `D:\RideShare\.env` (free key at https://cloud.maptiler.com). Without it, the map shows an **"API KEY REQUIRED"** watermark instead of streets.
+
+### 3.5 Or: run it in the browser (no phone needed)
+
+Instead of 3.3 and 3.4, start the app for the browser in terminal 2:
+
+```bash
+cd mobile
+```
+
+```bash
+npm run web
+```
+
+It opens **http://localhost:5173**, with the app as a phone-sized column in the middle of the window. The same server also shows the QR code, so phones can join at the same time.
+
+- **Each browser tab has its own sign-in.** Use one tab for the rider and a second tab for the driver. A reload keeps you signed in; closing the tab signs you out.
+- **Use `localhost:5173` exactly** (not `127.0.0.1` or the Wi-Fi IP): sign-in always returns there.
+- **Location:** allow it when the browser asks. If it's blocked or unavailable, rider and driver both start at Ghatkopar, so they still match.
+- **Documents:** the licence and RC buttons open a file picker (JPEG or PNG).
+- **Navigate** opens OpenStreetMap directions in a new tab. **Call** buttons only work on a phone.
 
 ---
 
@@ -227,7 +247,7 @@ Try **GET /health** with **Try it out** → **Execute**.
 
 ## Single-phone demo
 
-With only one phone, switch accounts between steps using **☰ → Sign out**.
+With only one phone, switch accounts between steps using **☰ → Sign out**. (Or play the driver in a browser tab on the PC, see [3.5](#35-or-run-it-in-the-browser-no-phone-needed).)
 
 1. Sign in as **Asha Rider**, book a **Car** ride and note the **OTP** on screen. It's also printed in terminal 1 as `Share OTP 1234`.
 2. **Sign out** and sign in as **Ravi Driver**. The driver now uses the same phone, so their GPS is right next to the pickup.
@@ -246,13 +266,13 @@ Google only sends people back to addresses registered on your OAuth client, and 
 
 1. Create the OAuth client as described in the README ([Enable Google sign-in](README.md#enable-google-sign-in)), with these **Authorised redirect URIs**:
    - `http://localhost:3002/auth/google/callback` (admin app)
-   - `http://localhost:5173/web/auth/google/callback` (web app, coming next)
+   - `http://localhost:5173/web/auth/google/callback` (the app in the browser, see [3.5](#35-or-run-it-in-the-browser-no-phone-needed))
 2. In `D:\RideShare\.env`, set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, and add your Gmail to the admin list:
    ```
    ADMIN_EMAILS=admin@example.test,your.name@gmail.com
    ```
 3. Restart `npm run dev`. The banner says `Sign-in: google + mock`.
-4. Open http://localhost:3002 → **Continue with Google**.
+4. Open http://localhost:3002 → **Continue with Google**. The app in the browser (http://localhost:5173) offers it too.
 
 While the Google app is in "Testing" mode, only accounts listed as **test users** on the consent screen can sign in. A brand-new client can take a few minutes to a few hours to start working; until then you'll see `redirect_uri_mismatch`.
 
@@ -280,7 +300,7 @@ Without the tunnel, tapping **Continue with Google** on the phone ends in Google
 | **`npm run db:reset` says the database is in use** | Stop `npm run dev` with **Ctrl+C** first. |
 | App says **"Can't reach the RideShare server"** | Phone and PC must be on the same Wi-Fi. Open `http://192.168.x.x:3000/api/v1/health` on the phone. If it fails, allow **Node.js** through Windows Firewall, or try another network. |
 | **QR code won't open** | In Expo Go, use **Enter URL manually**: `exp://192.168.x.x:8081`. As a last resort run `npx expo start --tunnel` in `mobile\`. |
-| **"API KEY REQUIRED" across the map** | Known for now (see 3.4). The map still works. |
+| **"API KEY REQUIRED" across the map** | `MAPTILER_KEY` isn't set in `.env` (see 3.4). Set it and restart `npm run dev`, then reload the app. |
 | **Map is black / no streets** | The phone needs internet for map tiles. Zoom in or out once to force a reload. |
 | **Place search finds nothing** | Search is biased to Mumbai (set `GEO_VIEWBOX` / `GEO_COUNTRY_CODES` in `.env` for another city). Use **Choose on map** instead. |
 | **Driver doesn't see the request** | The driver must be **online**, have the **same vehicle type** the rider chose (Ravi = Car), and be within **12 km** of the pickup. |
@@ -289,6 +309,8 @@ Without the tunnel, tapping **Continue with Google** on the phone ends in Google
 | **Stuck after sign-in in Expo Go** | Close the in-app browser and try again; make sure terminal 1 is still running. |
 | **Port already in use** | Another copy is still running. Close old terminals, or restart the PC. |
 | **Everything looks stale** | Press `r` in terminal 2 to reload the app, or close and reopen Expo Go. |
+| **Browser: "Can't reach the RideShare API on port 3000"** | Terminal 1 (`npm run dev`) isn't running. |
+| **Browser: sign-in ends with an error page** | Open the app at exactly http://localhost:5173 and sign in again. |
 
 ---
 

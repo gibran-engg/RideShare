@@ -1,10 +1,10 @@
 import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import * as SecureStore from "expo-secure-store";
+import { Platform } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { api, API_URL, setAuthToken, setUnauthorizedHandler } from "./api";
+import { clearToken, loadToken, saveToken } from "./token";
 
-const TOKEN_KEY = "rideshare.token";
 const SessionContext = createContext(null);
 
 /**
@@ -19,7 +19,7 @@ export function SessionProvider({ children }) {
 
     const signOutLocally = useCallback(async () => {
         setAuthToken(null);
-        await SecureStore.deleteItemAsync(TOKEN_KEY);
+        await clearToken();
         setMe(null);
         setStatus("signed-out");
     }, []);
@@ -35,7 +35,7 @@ export function SessionProvider({ children }) {
         setUnauthorizedHandler(() => signOutLocally());
         (async () => {
             api("/api/config").then(setConfig).catch(() => {});
-            const token = await SecureStore.getItemAsync(TOKEN_KEY);
+            const token = await loadToken();
             if (!token) return setStatus("signed-out");
             setAuthToken(token);
             try {
@@ -49,11 +49,26 @@ export function SessionProvider({ children }) {
         })();
     }, [refresh, signOutLocally]);
 
+    /** Swap the one-time code from the sign-in redirect for an app token. */
+    const completeSignIn = useCallback(async (code) => {
+        const { token } = await api("/api/auth/exchange", { method: "POST", body: { code } });
+        await saveToken(token);
+        setAuthToken(token);
+        await refresh();
+        setStatus("signed-in");
+    }, [refresh]);
+
     /**
      * OAuth sign-in: open the provider in an in-app browser via the backend, which sends us
      * back to rideshare://auth (or exp://.../--/auth in Expo Go) with a one-time code.
      */
     const signIn = useCallback(async (provider) => {
+        if (Platform.OS === "web") {
+            // Browser: the backend's web sign-in returns to the /signed-in screen, which finishes it.
+            window.location.assign(`/web/auth/${provider}`);
+            return new Promise(() => {});
+        }
+
         const redirect = Linking.createURL("auth");
         const startUrl = `${API_URL}/auth/${provider}?redirect=${encodeURIComponent(redirect)}`;
         const result = await WebBrowser.openAuthSessionAsync(startUrl, redirect);
@@ -63,13 +78,9 @@ export function SessionProvider({ children }) {
         if (queryParams?.error) throw new Error(String(queryParams.error));
         if (!queryParams?.code) throw new Error("Sign-in didn't complete. Please try again.");
 
-        const { token } = await api("/api/auth/exchange", { method: "POST", body: { code: String(queryParams.code) } });
-        await SecureStore.setItemAsync(TOKEN_KEY, token);
-        setAuthToken(token);
-        await refresh();
-        setStatus("signed-in");
+        await completeSignIn(String(queryParams.code));
         return { cancelled: false };
-    }, [refresh]);
+    }, [completeSignIn]);
 
     const signOut = useCallback(async () => {
         try {
@@ -81,8 +92,8 @@ export function SessionProvider({ children }) {
     }, [signOutLocally]);
 
     const value = useMemo(
-        () => ({ status, me, config, refresh, signIn, signOut, setMe }),
-        [status, me, config, refresh, signIn, signOut]
+        () => ({ status, me, config, refresh, signIn, completeSignIn, signOut, setMe }),
+        [status, me, config, refresh, signIn, completeSignIn, signOut]
     );
     return createElement(SessionContext.Provider, { value }, children);
 }
