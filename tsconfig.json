@@ -18,6 +18,6 @@
         "resolveJsonModule": true,
         "skipLibCheck": true
     },
-    "include": ["shared/src", "backend", "apps/admin", "mock-oauth", "scripts", "tests"],
+    "include": ["lib", "services", "db", "backend", "apps/admin", "mock-oauth", "scripts", "tests"],
     "exclude": ["node_modules", "mobile", "**/node_modules"]
 }

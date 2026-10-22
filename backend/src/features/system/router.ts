@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { auth, config, db, fare, rides } from "@rideshare/shared";
+import * as auth from "../../../../services/auth/oidc.ts";
+import config from "../../../../lib/config.ts";
+import * as db from "../../../../db/index.ts";
+import * as fare from "../../../../services/rides/fare.ts";
+import * as rides from "../../../../services/rides/service.ts";
 import { createModule } from "../../core/route.ts";
 
 /** Public endpoints: health check and the settings the apps need before sign-in. */

@@ -1,6 +1,13 @@
 import path from "node:path";
 import type { NextFunction, Request, Response } from "express";
-import { AppError, activity, auth, config, isMain, security, users, web } from "@rideshare/shared";
+import { AppError } from "../../lib/errors.ts";
+import * as activity from "../../services/activity/service.ts";
+import * as auth from "../../services/auth/oidc.ts";
+import config from "../../lib/config.ts";
+import { isMain } from "../../lib/is-main.ts";
+import * as security from "../../lib/security.ts";
+import * as users from "../../services/users/service.ts";
+import * as web from "../../lib/web-app.ts";
 import router from "./routes.ts";
 
 const app = web.createWebApp({

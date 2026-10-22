@@ -1,7 +1,7 @@
 import express from "express";
 import type { Request } from "express";
 import { z } from "zod";
-import { payments } from "@rideshare/shared";
+import * as payments from "../../../../services/payments/service.ts";
 import { requireReady } from "../../core/auth.ts";
 import { registry } from "../../core/openapi.ts";
 import { createModule } from "../../core/route.ts";

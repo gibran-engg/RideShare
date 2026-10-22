@@ -9,8 +9,9 @@
 import crypto from "node:crypto";
 import express from "express";
 import type { Response } from "express";
-import { config, isMain } from "@rideshare/shared";
-import type { AppKey } from "@rideshare/shared";
+import config from "../lib/config.ts";
+import { isMain } from "../lib/is-main.ts";
+import type { AppKey } from "../lib/config.ts";
 
 if (config.isProduction || !config.oauth.mock.enabled) {
     console.error("mock-oauth is a development tool and is disabled (NODE_ENV=production or MOCK_OAUTH_ENABLED=false).");

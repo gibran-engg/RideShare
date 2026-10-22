@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { AppError, security, tokens, users } from "@rideshare/shared";
+import { AppError } from "../../../../lib/errors.ts";
+import * as security from "../../../../lib/security.ts";
+import * as tokens from "../../../../services/auth/service.ts";
+import * as users from "../../../../services/users/service.ts";
 import { createModule } from "../../core/route.ts";
 import { Ok } from "../../core/schemas.ts";
 import { User, toUser } from "../users/schemas.ts";

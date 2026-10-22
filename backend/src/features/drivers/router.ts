@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { AppError, drivers, rides, users } from "@rideshare/shared";
+import { AppError } from "../../../../lib/errors.ts";
+import * as drivers from "../../../../services/drivers/service.ts";
+import * as rides from "../../../../services/rides/service.ts";
+import * as users from "../../../../services/users/service.ts";
 import { requireReady } from "../../core/auth.ts";
 import { createModule } from "../../core/route.ts";
 import { LatLng, Ok } from "../../core/schemas.ts";

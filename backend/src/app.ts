@@ -1,6 +1,8 @@
 import express from "express";
 import swaggerUi from "swagger-ui-express";
-import { activity, config, db } from "@rideshare/shared";
+import * as activity from "../../services/activity/service.ts";
+import config from "../../lib/config.ts";
+import * as db from "../../db/index.ts";
 import { errorHandler, notFound, requestContext } from "./core/errors.ts";
 import { openApiDocument } from "./core/openapi.ts";
 import activityRouter from "./features/activity/router.ts";

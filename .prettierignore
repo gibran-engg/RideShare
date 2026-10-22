@@ -5,5 +5,5 @@ coverage
 package-lock.json
 *.ejs
 *.md
-shared/public
+public
 .github

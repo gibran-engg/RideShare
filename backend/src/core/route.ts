@@ -2,7 +2,7 @@ import express from "express";
 import type { NextFunction, Request, RequestHandler, Response, Router } from "express";
 import { z as zod } from "zod";
 import type { ZodType, z } from "zod";
-import { AppError } from "@rideshare/shared";
+import { AppError } from "../../../lib/errors.ts";
 import { ErrorSchema, bearerAuth, registry } from "./openapi.ts";
 import { requireAuth } from "./auth.ts";
 import { idempotent } from "./idempotency.ts";

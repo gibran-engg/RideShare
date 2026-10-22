@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
-import { AppError, idempotency } from "@rideshare/shared";
+import { AppError } from "../../../lib/errors.ts";
+import * as idempotency from "../../../lib/idempotency.ts";
 
 /**
  * Idempotency-Key support (as in the Stripe/Razorpay APIs). The first response to a key is stored;

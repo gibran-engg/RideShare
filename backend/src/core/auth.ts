@@ -1,6 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import { AppError, tokens, users } from "@rideshare/shared";
-import type { Role } from "@rideshare/shared";
+import { AppError } from "../../../lib/errors.ts";
+import * as tokens from "../../../services/auth/service.ts";
+import * as users from "../../../services/users/service.ts";
+import type { Role } from "../../../lib/types.ts";
 
 /** Bearer-token authentication for /api routes. */
 export function requireAuth(req: Request, res: Response, next: NextFunction): void {

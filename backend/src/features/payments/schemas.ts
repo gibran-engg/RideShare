@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { PaymentRow } from "@rideshare/shared";
+import type { PaymentRow } from "../../../../lib/types.ts";
 import { registry } from "../../core/openapi.ts";
 import { PaymentMethod } from "../../core/schemas.ts";
 

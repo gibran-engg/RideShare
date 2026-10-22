@@ -10,7 +10,7 @@ Why things are built the way they are: see **[decision.md](decision.md)**.
 | **API** | `backend/` | Node + Express JSON API, WebSocket live updates, OAuth sign-in, OpenStreetMap search/routing |
 | **Admin app** | `apps/admin/` | Node + EJS website: verify drivers, monitor rides, manage users, SMS and audit logs |
 | Dev sign-in | `mock-oauth/` | Local OpenID Connect provider for development (off in production) |
-| Shared core | `shared/` | Database (SQLite), rides, fares, drivers, OTP, tokens, OAuth |
+| Business logic | `services/`, `lib/`, `db/` | Database (SQLite), rides, fares, drivers, OTP, tokens, OAuth |
 
 ## Actors
 
@@ -29,11 +29,11 @@ Why things are built the way they are: see **[decision.md](decision.md)**.
 The system context diagram is in `architecture/`.
 
 ```
- Phone (Expo app) ──HTTPS/WS──► backend (API :3000) ──► shared/ ──► SQLite (data/rideshare.db)
+ Phone (Expo app) ──HTTPS/WS──► backend (API :3000) ──► services/ ──► SQLite (data/rideshare.db)
         │                           │   ├─ OSM: Nominatim (search), OSRM (routes)
         │ sign-in (in-app browser)  │   └─ SMS (console)
         └──► Google / Apple / dev ──┘
- Browser ─────────────────────────► apps/admin (:3002) ──► shared/
+ Browser ─────────────────────────► apps/admin (:3002) ──► services/
 ```
 
 ## Run it
@@ -187,7 +187,7 @@ Mobile checks: `cd mobile && npx eslint src metro.config.js && npx expo-doctor`.
 
 ## Project structure
 
-Each feature is split the same way: HTTP in `backend/src/features/<feature>/` (router + schemas), business logic and SQL in `shared/src/features/<feature>/` (service + repository), so the admin app reuses the same rules.
+Each feature is split the same way: HTTP in `backend/src/features/<feature>/` (router + schemas), business logic and SQL in `services/<feature>/` (service + repository), so the admin app reuses the same rules. Files import each other directly by path.
 
 ```
 backend/src/
@@ -204,19 +204,17 @@ backend/src/
 ├── app.ts          wiring: /api/v1 (+ /api alias), /docs, sign-in, checkout page
 └── main.ts         HTTP server + WebSocket, graceful shutdown
 
-shared/src/
-├── features/
-│   ├── auth/       service.ts (tokens, login codes)  repository.ts  oidc.ts (OAuth/OIDC flow)
-│   ├── users/      service.ts  repository.ts  otp.ts (phone codes)
-│   ├── drivers/    service.ts  repository.ts
-│   ├── rides/      service.ts  repository.ts  state.ts (ride state machine)  fare.ts
-│   ├── places/     service.ts (OpenStreetMap search and routing)
-│   ├── payments/   service.ts  repository.ts  gateway.ts (payment provider interface + test-mode mock)
-│   └── activity/   service.ts (timeline from domain events)  repository.ts
-├── core/           config, errors, events, types, pagination, idempotency, sms, audit, web/ (sessions, CSRF, views)
-├── db/             index.ts (connection, transactions, migration runner)  migrations/*.sql
-└── index.ts        public API of the package
-shared/views/, shared/public/   layout, styles and script for the admin pages
+services/
+├── auth/        service.ts (tokens, login codes)  repository.ts  oidc.ts (OAuth/OIDC flow)
+├── users/       service.ts  repository.ts  otp.ts (phone codes)
+├── drivers/     service.ts  repository.ts
+├── rides/       service.ts  repository.ts  state.ts (ride state machine)  fare.ts
+├── places/      service.ts (OpenStreetMap search and routing)
+├── payments/    service.ts  repository.ts  gateway.ts (payment provider interface + test-mode mock)
+└── activity/    service.ts (timeline from domain events)  repository.ts
+lib/             config, errors, events, types, pagination, idempotency, sms, audit, sessions, CSRF, view helpers
+db/              index.ts (connection, transactions, migration runner)  migrations/*.sql
+views/, public/  layout partials, error page, styles and browser script for the server-rendered pages
 
 apps/admin/      Admin website (Express + EJS): server.ts, routes.ts, views/
 mock-oauth/      Dev-only OpenID Connect provider

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { sms, users } from "@rideshare/shared";
+import * as sms from "../../lib/sms.ts";
+import * as users from "../../services/users/service.ts";
 import { Client } from "./client.ts";
 
 // 1x1 PNG

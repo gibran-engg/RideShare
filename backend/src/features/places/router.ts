@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { geo } from "@rideshare/shared";
+import * as geo from "../../../../services/places/service.ts";
 import { createModule } from "../../core/route.ts";
 import { LatLng } from "../../core/schemas.ts";
 import { Place, SearchQuery } from "./schemas.ts";

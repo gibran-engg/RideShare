@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { activity } from "@rideshare/shared";
-import type { ActivityRow } from "@rideshare/shared";
+import * as activity from "../../../../services/activity/service.ts";
+import type { ActivityRow } from "../../../../lib/types.ts";
 import { registry } from "../../core/openapi.ts";
 
 export const Activity = registry.register(

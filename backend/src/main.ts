@@ -1,5 +1,7 @@
 import http from "node:http";
-import { config, db, isMain } from "@rideshare/shared";
+import config from "../../lib/config.ts";
+import * as db from "../../db/index.ts";
+import { isMain } from "../../lib/is-main.ts";
 import app from "./app.ts";
 import * as realtime from "./core/realtime.ts";
 

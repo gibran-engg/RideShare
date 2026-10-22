@@ -3,7 +3,7 @@
  * Run `npm run db:reset`, which also reloads the demo accounts.
  */
 import fs from "node:fs";
-import { config } from "@rideshare/shared";
+import config from "../lib/config.ts";
 
 if (config.isProduction) {
     console.error("Refusing to reset data in production.");

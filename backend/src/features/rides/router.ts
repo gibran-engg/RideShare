@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { AppError, rides } from "@rideshare/shared";
-import type { RideRow } from "@rideshare/shared";
+import { AppError } from "../../../../lib/errors.ts";
+import * as rides from "../../../../services/rides/service.ts";
+import type { RideRow } from "../../../../lib/types.ts";
 import { requireReady } from "../../core/auth.ts";
 import { createModule } from "../../core/route.ts";
 import { IdParams, PageQuery, PaymentMethod, VehicleType, page, toPage } from "../../core/schemas.ts";

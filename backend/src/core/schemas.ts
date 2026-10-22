@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Page } from "@rideshare/shared";
+import type { Page } from "../../../lib/types.ts";
 import "./openapi.ts";
 
 /** Request pieces and response helpers used by several features. */

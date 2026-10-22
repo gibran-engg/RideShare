@@ -1,7 +1,10 @@
 import { startServers, stopServers } from "./helpers/env.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
-import { db, drivers, paymentGateway, users } from "@rideshare/shared";
+import * as db from "../db/index.ts";
+import * as drivers from "../services/drivers/service.ts";
+import * as paymentGateway from "../services/payments/gateway.ts";
+import * as users from "../services/users/service.ts";
 import { App, GHATKOPAR, POWAI, onboard, stamp } from "./helpers/app.ts";
 import type { Json } from "./helpers/app.ts";
 import { Client } from "./helpers/client.ts";

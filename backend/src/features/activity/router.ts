@@ -1,4 +1,4 @@
-import { activity } from "@rideshare/shared";
+import * as activity from "../../../../services/activity/service.ts";
 import { createModule } from "../../core/route.ts";
 import { PageQuery, page, toPage } from "../../core/schemas.ts";
 import { Activity, toActivity } from "./schemas.ts";

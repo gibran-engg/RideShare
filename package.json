@@ -3,12 +3,6 @@
     "version": "1.0.0",
     "private": true,
     "description": "Node.js ride-sharing platform: User app (riders + drivers), Admin app and core API with OAuth sign-in.",
-    "workspaces": [
-        "shared",
-        "backend",
-        "apps/admin",
-        "mock-oauth"
-    ],
     "scripts": {
         "dev": "node scripts/dev.ts",
         "start": "node scripts/dev.ts",
@@ -16,7 +10,7 @@
         "db:reset": "node scripts/reset.ts && node scripts/seed.ts",
         "seed": "node scripts/seed.ts",
         "test": "node --test --test-isolation=none \"tests/**/*.test.ts\"",
-        "test:coverage": "node --test --test-isolation=none --experimental-test-coverage --test-coverage-include=\"shared/src/**\" --test-coverage-include=\"backend/src/**\" --test-coverage-lines=80 \"tests/**/*.test.ts\"",
+        "test:coverage": "node --test --test-isolation=none --experimental-test-coverage --test-coverage-include=\"lib/**\" --test-coverage-include=\"services/**\" --test-coverage-include=\"db/**\" --test-coverage-include=\"backend/src/**\" --test-coverage-lines=80 \"tests/**/*.test.ts\"",
         "typecheck": "tsc -p tsconfig.json",
         "lint": "eslint .",
         "format": "prettier --write .",
@@ -25,6 +19,18 @@
     },
     "engines": {
         "node": ">=22.18"
+    },
+    "dependencies": {
+        "@asteasolutions/zod-to-openapi": "^9.1.0",
+        "dotenv": "^18.0.6",
+        "ejs": "^3.1.10",
+        "express": "^5.2.1",
+        "express-session": "^1.18.2",
+        "multer": "^2.4.0",
+        "openid-client": "^6.8.1",
+        "swagger-ui-express": "^5.0.1",
+        "ws": "^8.18.3",
+        "zod": "^4.6.5"
     },
     "devDependencies": {
         "@eslint/js": "^10.0.1",

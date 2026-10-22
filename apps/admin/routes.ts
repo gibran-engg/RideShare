@@ -1,8 +1,17 @@
 import path from "node:path";
 import express from "express";
 import type { Request } from "express";
-import { AppError, activity, audit, config, drivers, payments, rideState, rides, sms, users } from "@rideshare/shared";
-import type { RideStatus, VerificationStatus } from "@rideshare/shared";
+import { AppError } from "../../lib/errors.ts";
+import * as activity from "../../services/activity/service.ts";
+import * as audit from "../../lib/audit.ts";
+import config from "../../lib/config.ts";
+import * as drivers from "../../services/drivers/service.ts";
+import * as payments from "../../services/payments/service.ts";
+import * as rideState from "../../services/rides/state.ts";
+import * as rides from "../../services/rides/service.ts";
+import * as sms from "../../lib/sms.ts";
+import * as users from "../../services/users/service.ts";
+import type { RideStatus, VerificationStatus } from "../../lib/types.ts";
 
 const router = express.Router();
 

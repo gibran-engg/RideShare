@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { DriverRow } from "@rideshare/shared";
+import type { DriverRow } from "../../../../lib/types.ts";
 import { registry } from "../../core/openapi.ts";
 import { VehicleType } from "../../core/schemas.ts";
 

@@ -2,9 +2,13 @@ import "./helpers/env.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
-import { AppError, ERROR_STATUS, activity, db, paymentGateway, rideState } from "@rideshare/shared";
-import type { RideStatus } from "@rideshare/shared";
-import { toPage, pageLimit } from "../shared/src/core/pagination.ts";
+import { AppError, ERROR_STATUS } from "../lib/errors.ts";
+import * as activity from "../services/activity/service.ts";
+import * as db from "../db/index.ts";
+import * as paymentGateway from "../services/payments/gateway.ts";
+import * as rideState from "../services/rides/state.ts";
+import type { RideStatus } from "../lib/types.ts";
+import { toPage, pageLimit } from "../lib/pagination.ts";
 
 const STATUSES: RideStatus[] = ["requested", "accepted", "arrived", "in_progress", "completed", "cancelled"];
 const ACTORS = ["rider", "driver", "admin"] as const;

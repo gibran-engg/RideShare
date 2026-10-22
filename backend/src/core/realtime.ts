@@ -1,7 +1,10 @@
 import type { Server } from "node:http";
 import { WebSocketServer } from "ws";
 import type { WebSocket } from "ws";
-import { bus, rides, tokens, users } from "@rideshare/shared";
+import { bus } from "../../../lib/events.ts";
+import * as rides from "../../../services/rides/service.ts";
+import * as tokens from "../../../services/auth/service.ts";
+import * as users from "../../../services/users/service.ts";
 
 const AUTH_TIMEOUT_MS = 5000;
 // Changes made by another process (the admin app) don't reach this process's event bus,

@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { rideState } from "@rideshare/shared";
-import type { RideRow } from "@rideshare/shared";
+import * as rideState from "../../../../services/rides/state.ts";
+import type { RideRow } from "../../../../lib/types.ts";
 import { registry } from "../../core/openapi.ts";
 import { PaymentMethod, VehicleType } from "../../core/schemas.ts";
 

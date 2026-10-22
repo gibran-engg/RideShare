@@ -3,7 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import multer from "multer";
 import type { NextFunction, Request, Response } from "express";
-import { AppError, config } from "@rideshare/shared";
+import { AppError } from "../../../../lib/errors.ts";
+import config from "../../../../lib/config.ts";
 
 /** Driver licence and RC uploads: photo or PDF, max 8 MB each, content checked against the declared type. */
 

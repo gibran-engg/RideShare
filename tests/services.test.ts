@@ -1,8 +1,16 @@
 import "./helpers/env.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
-import { db, drivers, fare, geo, otp, rides, sms, tokens, users } from "@rideshare/shared";
-import type { Point, Role, UserRow, VehicleType } from "@rideshare/shared";
+import * as db from "../db/index.ts";
+import * as drivers from "../services/drivers/service.ts";
+import * as fare from "../services/rides/fare.ts";
+import * as geo from "../services/places/service.ts";
+import * as otp from "../services/users/otp.ts";
+import * as rides from "../services/rides/service.ts";
+import * as sms from "../lib/sms.ts";
+import * as tokens from "../services/auth/service.ts";
+import * as users from "../services/users/service.ts";
+import type { Point, Role, UserRow, VehicleType } from "../lib/types.ts";
 
 db.open();
 

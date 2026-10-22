@@ -105,3 +105,16 @@ The owner wanted to develop and demo RideShare on the PC, in a browser, without 
 | 73 | On a desktop screen the app is shown as a **phone-width (430 px) column** in the middle of the window | Claude | It's a phone app; full-width bottom sheets on a wide screen look broken. |
 | 74 | Note: the app is on **Expo SDK 57 / React 19.2.3**, not SDK 58 / React 19.3.0 as decisions 33 and 40 say | Claude | Correction; versions were not changed in this round. |
 | 75 | The phone and browser maps take their **tile URL and credit line from `/api/config`**, so they use MapTiler (decision 60) when `MAPTILER_KEY` is set and CARTO otherwise; no tile URL is hard-coded in the app | Owner | The app still had CARTO hard-coded, so the map showed only the watermark. The key stays in the root `.env`; the map shows no tiles until the config has loaded, instead of flashing the watermark. |
+
+## Round 5: a web app without Expo (in progress)
+
+The owner dropped Expo Go: RideShare becomes a web application in the desktop browser, responsive enough for phone browsers later. Native iOS/Android apps are no longer a requirement.
+
+| # | Decision | Who | Why |
+|---|---|---|---|
+| 76 | **Web-first**: Expo and the `mobile/` app leave the workflow. The last Expo version is tagged **`expo-version`** on GitHub | Owner | Simpler to develop and demo on the PC. |
+| 77 | Rider and driver pages are **server-rendered with Express + EJS**: plain HTML forms, CSS, and a little **vanilla JavaScript** for the map, place search and GPS. No React, Vite or other frontend framework; **Leaflet** stays as the one browser library | Owner | Fewest technologies, no build step, the same style as the admin app, and the server already decides fares, ride states and matching. Considered: React + Vite (an easier port of the Expo screens, but a build tool and a second way of rendering pages). |
+| 78 | **Compact folder layout**: `server.ts`, `routes/`, `services/` (business logic + SQL), `lib/` (config, sessions, CSRF, errors), `db/`, `views/`, `public/`, `scripts/`, `tests/`, with one `package.json` | Owner + Claude | Adapted from a ChatGPT draft. Server code stays TypeScript (Node runs it directly); browser code is plain JavaScript. |
+| 79 | `shared/` moved into `services/`, `lib/`, `db/`, `views/` and `public/`. Files import each other **directly by path** instead of through the `@rideshare/shared` package, and npm workspaces are gone | Claude | Every import shows the file it comes from. Removing the workspaces also dropped a stale `nodemon` install from the lock file; no package versions changed. |
+| 80 | Live updates for the web pages will use **Server-Sent Events** (`/events`) instead of the WebSocket | Owner | An ordinary HTTP request that carries the session cookie and reconnects by itself, with no extra package. The browser side already exists in `public/app.js`. |
+| 81 | The admin app will move into the same server at **`/admin`** | Owner | One server, one port. |

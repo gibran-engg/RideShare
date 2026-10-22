@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { UserRow } from "@rideshare/shared";
+import type { UserRow } from "../../../../lib/types.ts";
 import { registry } from "../../core/openapi.ts";
 import { Driver } from "../drivers/schemas.ts";
 

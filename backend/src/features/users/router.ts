@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { config, drivers, security, sms, users } from "@rideshare/shared";
+import config from "../../../../lib/config.ts";
+import * as drivers from "../../../../services/drivers/service.ts";
+import * as security from "../../../../lib/security.ts";
+import * as sms from "../../../../lib/sms.ts";
+import * as users from "../../../../services/users/service.ts";
 import { createModule } from "../../core/route.ts";
 import { toDriver } from "../drivers/schemas.ts";
 import { Me, ProfileBody, toUser } from "./schemas.ts";

@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
-import { AppError, runWithContext } from "@rideshare/shared";
+import { AppError } from "../../../lib/errors.ts";
+import { runWithContext } from "../../../lib/request-context.ts";
 
 /** Gives each request an id (echoed in X-Request-Id) and makes who-is-asking available to services. */
 export function requestContext(req: Request, res: Response, next: NextFunction): void {

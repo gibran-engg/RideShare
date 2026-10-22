@@ -1,7 +1,13 @@
 import express from "express";
 import type { Request, Response, Router } from "express";
-import { AppError, auth, config, sessionMiddleware, tokens, users } from "@rideshare/shared";
-import type { AppKey, UserRow } from "@rideshare/shared";
+import { AppError } from "../../../../lib/errors.ts";
+import * as auth from "../../../../services/auth/oidc.ts";
+import config from "../../../../lib/config.ts";
+import { sessionMiddleware } from "../../../../lib/session-store.ts";
+import * as tokens from "../../../../services/auth/service.ts";
+import * as users from "../../../../services/users/service.ts";
+import type { AppKey } from "../../../../lib/config.ts";
+import type { UserRow } from "../../../../lib/types.ts";
 
 /**
  * Sign-in for both apps, in three steps:

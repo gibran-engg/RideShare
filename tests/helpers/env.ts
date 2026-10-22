@@ -1,6 +1,6 @@
 /**
  * Isolated test environment: temp database and uploads, separate ports.
- * Must be imported before anything from @rideshare/shared (ES modules evaluate in import order).
+ * Must be imported before anything from lib/ or services/ (ES modules evaluate in import order).
  */
 import fs from "node:fs";
 import os from "node:os";
@@ -38,7 +38,7 @@ let starting: Promise<Server[]> | undefined;
 let users = 0;
 
 async function listenAll(): Promise<Server[]> {
-    const { config } = await import("@rideshare/shared");
+    const { default: config } = await import("../../lib/config.ts");
     const listen = (app: { listen: (port: number, cb: () => void) => Server }, port: number) =>
         new Promise<Server>((resolve) => {
             const server = app.listen(port, () => resolve(server));
@@ -63,7 +63,7 @@ export async function startServers() {
     users += 1;
     starting ??= listenAll();
     await starting;
-    const { config } = await import("@rideshare/shared");
+    const { default: config } = await import("../../lib/config.ts");
     return config.urls;
 }
 

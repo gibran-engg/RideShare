@@ -1,5 +1,7 @@
 import express from "express";
-import { AppError, paymentGateway, payments } from "@rideshare/shared";
+import { AppError } from "../../../../lib/errors.ts";
+import * as paymentGateway from "../../../../services/payments/gateway.ts";
+import * as payments from "../../../../services/payments/service.ts";
 
 function escapeHtml(value: unknown): string {
     return String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]!);

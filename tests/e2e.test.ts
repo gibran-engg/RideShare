@@ -1,7 +1,7 @@
 import { startServers, stopServers } from "./helpers/env.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
-import { users } from "@rideshare/shared";
+import * as users from "../services/users/service.ts";
 import { APP_REDIRECT, App, GHATKOPAR, POWAI, onboard, stamp } from "./helpers/app.ts";
 import type { Json } from "./helpers/app.ts";
 import { Client } from "./helpers/client.ts";

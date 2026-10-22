@@ -6,7 +6,8 @@
 import path from "node:path";
 import { spawn } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
-import { config, db } from "@rideshare/shared";
+import config from "../lib/config.ts";
+import * as db from "../db/index.ts";
 
 const root = path.join(import.meta.dirname, "..");
 

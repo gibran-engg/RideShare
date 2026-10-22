@@ -1,7 +1,8 @@
 /** Applies pending database migrations (the apps also do this when they start). */
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
-import { config, db } from "@rideshare/shared";
+import config from "../lib/config.ts";
+import * as db from "../db/index.ts";
 
 function versionOnDisk(): number {
     if (!fs.existsSync(config.databasePath)) return 0;

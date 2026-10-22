@@ -5,8 +5,11 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { config, db, drivers, users } from "@rideshare/shared";
-import type { PaymentMethod, Point, Role, UserRow, VehicleType } from "@rideshare/shared";
+import config from "../lib/config.ts";
+import * as db from "../db/index.ts";
+import * as drivers from "../services/drivers/service.ts";
+import * as users from "../services/users/service.ts";
+import type { PaymentMethod, Point, Role, UserRow, VehicleType } from "../lib/types.ts";
 
 if (config.isProduction) {
     console.error("Refusing to seed demo data in production.");
